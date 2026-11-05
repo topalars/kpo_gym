@@ -4,7 +4,7 @@ services:
   # --- База данных PostgreSQL ---
   postgres-db:
     image: postgres:15-alpine
-    container_name: fitlite-db
+    container_name: fitlife-db
     restart: always
     environment:
       POSTGRES_DB: root
@@ -20,14 +20,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: fitlite-backend
+    container_name: fitlife-backend
     restart: always
     ports:
       - "8080:8080"
     environment:
       # Переопределяем подключение к БД для Docker-сети
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/fitlite_db
-      SPRING_DATASOURCE_USERNAME: fitlite_user
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/fitlife_db
+      SPRING_DATASOURCE_USERNAME: fitlife_user
       SPRING_DATASOURCE_PASSWORD: secret_password
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
@@ -38,7 +38,7 @@ services:
     build:
       context: .
       dockerfile: web/Dockerfile
-    container_name: fitlite-frontend
+    container_name: fitlife-frontend
     restart: always
     ports:
       - "3000:80"  # Доступ к сайту будет по адресу http://localhost:3000

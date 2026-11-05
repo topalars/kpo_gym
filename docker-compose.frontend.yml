@@ -1,0 +1,8 @@
+# Independent frontend preview. Does not start the unfinished backend or database.
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    ports:
+      - "3000:80"
