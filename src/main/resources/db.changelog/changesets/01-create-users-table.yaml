@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: blumbus
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: surname
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: role
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false

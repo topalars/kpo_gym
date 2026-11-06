@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: blumbus
+      changes:
+        - createTable:
+            tableName: user_security
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    foreignKey:
+                      foreignKeyName: fk_user_id_user_security
+                      references: users
+                      referencedColumnNames: id
+                      onDelete: CASCADE
+              - column:
+                  name: password
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: phone_number
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: true

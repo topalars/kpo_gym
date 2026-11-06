@@ -1,10 +1,10 @@
+package com.example.fitlite;
+
 public abstract class User {
 
-    //qwerty
-    private Integer id;
+    private Long id;
     private String name;
     private String email;
     private String password;
-    private UsersRole role;
-
+    private UserRole role;
 }
