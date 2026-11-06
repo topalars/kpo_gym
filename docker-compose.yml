@@ -1,35 +1,37 @@
-version: '3.8'
-
 services:
-  # --- База данных PostgreSQL ---
+  # --- PostgreSQL ---
   postgres-db:
     image: postgres:15-alpine
-    container_name: fitlite-db
+    container_name: fitlife-db
     restart: always
     environment:
-      POSTGRES_DB: root
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: secret_password
+      POSTGRES_DB: ${POSTGRES_DB:-fitlife_db}
+      POSTGRES_USER: ${POSTGRES_USER:-root}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-root} -d ${POSTGRES_DB:-fitlife_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  # --- Бэкенд на Spring Boot ---
+  # --- Spring backend ---
   backend:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: fitlite-backend
+    container_name: fitlife-backend
     restart: always
     ports:
-      - "8080:8080"
+      - "${BACKEND_PORT:-8080}:8080"
     environment:
-      # Переопределяем подключение к БД для Docker-сети
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/fitlite_db
-      SPRING_DATASOURCE_USERNAME: fitlite_user
-      SPRING_DATASOURCE_PASSWORD: secret_password
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/${POSTGRES_DB:-fitlife_db}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-root}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-root}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO:-update}
     depends_on:
       postgres-db:
         condition: service_healthy
@@ -38,10 +40,10 @@ services:
     build:
       context: .
       dockerfile: web/Dockerfile
-    container_name: fitlite-frontend
+    container_name: fitlife-frontend
     restart: always
     ports:
-      - "3000:80"  # Доступ к сайту будет по адресу http://localhost:3000
+      - "${FRONTEND_PORT:-3000}:80"
     depends_on:
       - backend
 

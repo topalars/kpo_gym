@@ -1,13 +1,12 @@
-package com.example.fitlite;
+package ru.slony.fitlife;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class FitLiteApplication {
-
+public class FitLifeApplication {
     public static void main(String[] args) {
-        SpringApplication.run(FitLiteApplication.class, args);
+        SpringApplication.run(FitLifeApplication.class, args);
     }
 
 }
