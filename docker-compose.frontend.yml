@@ -2,7 +2,7 @@
 services:
   frontend:
     build:
-      context: .
-      dockerfile: web/Dockerfile
+      context: ./src/main/resources
+      dockerfile: Dockerfile
     ports:
       - "3000:80"

@@ -1,8 +1,10 @@
 FROM node:20-alpine AS frontend-builder
 WORKDIR /app
-COPY web/package*.json ./
-RUN npm ci
-COPY web/ ./
+
+COPY package*.json ./
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+COPY . ./
 RUN npm run build
 
 FROM nginx:stable-alpine
