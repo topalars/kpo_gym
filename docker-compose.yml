@@ -1,49 +1,74 @@
-version: '3.8'
-
 services:
-  # --- База данных PostgreSQL ---
-  postgres-db:
-    image: postgres:15-alpine
-    container_name: fitlife-db
-    restart: always
+  db:
+    image: postgres:17-alpine
     environment:
-      POSTGRES_DB: root
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: secret_password
+      POSTGRES_DB: fitlife
+      POSTGRES_USER: fitlife
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      TZ: Europe/Moscow
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
-
-  # --- Бэкенд на Spring Boot ---
+      - fitlife_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fitlife -d fitlife"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
   backend:
     build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: fitlife-backend
-    restart: always
-    ports:
-      - "8080:8080"
+      context: ./backend
+      dockerfile: Dockerfile.backend
     environment:
-      # Переопределяем подключение к БД для Docker-сети
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/fitlife_db
-      SPRING_DATASOURCE_USERNAME: fitlife_user
-      SPRING_DATASOURCE_PASSWORD: secret_password
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      DB_URL: jdbc:postgresql://db:5432/fitlife
+      DB_USER: fitlife
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?Set ADMIN_EMAIL in .env}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      TZ: Europe/Moscow
+    ports:
+      - "127.0.0.1:8080:8080"
     depends_on:
-      postgres-db:
+      db:
         condition: service_healthy
-
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      start_period: 40s
+      retries: 20
+    restart: unless-stopped
   frontend:
     build:
-      context: .
-      dockerfile: web/Dockerfile
-    container_name: fitlife-frontend
-    restart: always
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
     ports:
-      - "3000:80"  # Доступ к сайту будет по адресу http://localhost:3000
+      - "127.0.0.1:3000:80"
     depends_on:
-      - backend
-
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+  backup:
+    image: postgres:17-alpine
+    environment:
+      PGHOST: db
+      PGUSER: fitlife
+      PGDATABASE: fitlife
+      PGPASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backups:/backups
+    entrypoint: ["/bin/sh", "/scripts/backup.sh"]
+    configs:
+      - source: backup_script
+        target: /scripts/backup.sh
+    restart: unless-stopped
+configs:
+  backup_script:
+    file: ./scripts/backup.sh
 volumes:
-  pgdata:
+  fitlife_data:
