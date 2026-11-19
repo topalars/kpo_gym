@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_DB: fitlife
       POSTGRES_USER: fitlife
-      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       TZ: Europe/Moscow
     ports:
       - "127.0.0.1:5432:5432"
