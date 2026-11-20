@@ -1,5 +1,6 @@
 package com.example.fitlife;
 
+import com.example.fitlife.service.FitLifeService;
 import com.fasterxml.jackson.databind.*;
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 import org.junit.jupiter.api.*;
@@ -47,7 +48,7 @@ class ApiIntegrationTest {
     @Autowired
     JdbcTemplate jdbc;
     @Autowired
-    com.example.fitlife.service.FitLifeService service;
+    FitLifeService service;
     MockHttpSession admin;
 
     @BeforeEach
